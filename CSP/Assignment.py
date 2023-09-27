@@ -136,11 +136,9 @@ class CSP:
         # ensure that any changes made to 'assignment' does not have any
         # side effects elsewhere.
         assignment = copy.deepcopy(self.domains)
-
         # Run AC-3 on all constraints in the CSP, to weed out all of the
         # values that are not arc-consistent to begin with
         self.inference(assignment, self.get_all_arcs())
-
         # Call backtrack with the partial assignment 'assignment'
         return self.backtrack(assignment)
 
@@ -169,7 +167,18 @@ class CSP:
         iterations of the loop.
         """
         # TODO: YOUR CODE HERE
-        pass
+        if all([len(assignment[key]) == 1 for key in assignment]):
+            return assignment
+        var = self.select_unassigned_variable(assignment)
+        print('var', var)
+        for value in assignment[var]:
+            assignment_copy = copy.deepcopy(assignment)
+            assignment_copy[var] = [value]
+            if self.inference(assignment_copy, self.get_all_neighboring_arcs(var)):
+                result = self.backtrack(assignment_copy)
+                if result:
+                    return result
+        return False
 
     def select_unassigned_variable(self, assignment):
         """The function 'Select-Unassigned-Variable' from the pseudocode
@@ -178,7 +187,11 @@ class CSP:
         of legal values has a length greater than one.
         """
         # TODO: YOUR CODE HERE
-        pass
+        # print('assignment', assignment)
+        for key in assignment:
+            if len(assignment[key]) > 1:
+                return key
+        # return [key for key in assignment if len(assignment[key]) > 1][0]
 
     def inference(self, assignment, queue):
         """The function 'AC-3' from the pseudocode in the textbook.
@@ -187,7 +200,15 @@ class CSP:
         is the initial queue of arcs that should be visited.
         """
         # TODO: YOUR CODE HERE
-        pass
+        while queue:
+            i, j = queue.pop(0)
+            if self.revise(assignment, i, j):
+                if len(assignment[i]) == 0:
+                    return False
+                for k in self.get_all_neighboring_arcs(i):
+                    if k[0] != j:
+                        queue.append(k)
+        return True
 
     def revise(self, assignment, i, j):
         """The function 'Revise' from the pseudocode in the textbook.
@@ -199,8 +220,13 @@ class CSP:
         legal values in 'assignment'.
         """
         # TODO: YOUR CODE HERE
-        pass
-
+        revised = False
+        if len(assignment[j]) == 1:        
+            for x in assignment[i]:
+                if x == assignment[j][0]:
+                    assignment[i].remove(x)
+                    revised = True
+        return revised
 
 def create_map_coloring_csp():
     """Instantiate a CSP representing the map coloring problem from the
@@ -276,3 +302,22 @@ def print_sudoku_solution(solution):
         print("")
         if row == 2 or row == 5:
             print('------+-------+------')
+
+map_csp = create_map_coloring_csp()
+print('Result: ',map_csp.backtracking_search())
+
+sudoku_csp = create_sudoku_csp("easy.txt")
+print('Easy sudoku')
+print_sudoku_solution(sudoku_csp.backtracking_search())
+
+sudoku_csp2 = create_sudoku_csp("medium.txt")
+print('Medium sudoku')
+print_sudoku_solution(sudoku_csp2.backtracking_search())
+
+sudoku_csp3 = create_sudoku_csp("hard.txt")
+print('Hard sudoku')
+print_sudoku_solution(sudoku_csp3.backtracking_search())
+
+sudoku_csp4 = create_sudoku_csp("veryhard.txt")
+print('Very hard sudoku')
+print_sudoku_solution(sudoku_csp4.backtracking_search())
