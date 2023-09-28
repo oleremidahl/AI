@@ -18,6 +18,9 @@ class CSP:
         # the variable pair (i, j)
         self.constraints = {}
 
+        self.backtrack_calls = 0
+        self.backtrack_false_returns = 0
+
     def add_variable(self, name: str, domain: list):
         """Add a new variable to the CSP.
 
@@ -167,10 +170,10 @@ class CSP:
         iterations of the loop.
         """
         # TODO: YOUR CODE HERE
+        self.backtrack_calls += 1
         if all([len(assignment[key]) == 1 for key in assignment]):
             return assignment
         var = self.select_unassigned_variable(assignment)
-        print('var', var)
         for value in assignment[var]:
             assignment_copy = copy.deepcopy(assignment)
             assignment_copy[var] = [value]
@@ -178,6 +181,7 @@ class CSP:
                 result = self.backtrack(assignment_copy)
                 if result:
                     return result
+        self.backtrack_false_returns += 1
         return False
 
     def select_unassigned_variable(self, assignment):
@@ -305,19 +309,29 @@ def print_sudoku_solution(solution):
 
 map_csp = create_map_coloring_csp()
 print('Result: ',map_csp.backtracking_search())
+print("Backtrack Calls:", map_csp.backtrack_calls)
+print("Backtrack False Returns:", map_csp.backtrack_false_returns)
 
 sudoku_csp = create_sudoku_csp("easy.txt")
 print('Easy sudoku')
 print_sudoku_solution(sudoku_csp.backtracking_search())
+print("Backtrack Calls:", sudoku_csp.backtrack_calls)
+print("Backtrack False Returns:", sudoku_csp.backtrack_false_returns)
 
 sudoku_csp2 = create_sudoku_csp("medium.txt")
 print('Medium sudoku')
 print_sudoku_solution(sudoku_csp2.backtracking_search())
+print("Backtrack Calls:", sudoku_csp2.backtrack_calls)
+print("Backtrack False Returns:", sudoku_csp2.backtrack_false_returns)
 
 sudoku_csp3 = create_sudoku_csp("hard.txt")
 print('Hard sudoku')
 print_sudoku_solution(sudoku_csp3.backtracking_search())
+print("Backtrack Calls:", sudoku_csp3.backtrack_calls)
+print("Backtrack False Returns:", sudoku_csp3.backtrack_false_returns)
 
 sudoku_csp4 = create_sudoku_csp("veryhard.txt")
 print('Very hard sudoku')
 print_sudoku_solution(sudoku_csp4.backtracking_search())
+print("Backtrack Calls:", sudoku_csp4.backtrack_calls)
+print("Backtrack False Returns:", sudoku_csp4.backtrack_false_returns)
