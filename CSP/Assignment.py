@@ -171,10 +171,10 @@ class CSP:
         """
         # TODO: YOUR CODE HERE
         
-        self.backtrack_calls += 1
         # Checks if all variables have been assigned a value
         if all([len(assignment[key]) == 1 for key in assignment]):
             return assignment
+        self.backtrack_calls += 1
         var = self.select_unassigned_variable(assignment)
         # Iterates through the domain of the selected variable
         for value in assignment[var]:
