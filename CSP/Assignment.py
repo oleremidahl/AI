@@ -170,13 +170,18 @@ class CSP:
         iterations of the loop.
         """
         # TODO: YOUR CODE HERE
+        
         self.backtrack_calls += 1
+        # Checks if all variables have been assigned a value
         if all([len(assignment[key]) == 1 for key in assignment]):
             return assignment
         var = self.select_unassigned_variable(assignment)
+        # Iterates through the domain of the selected variable
         for value in assignment[var]:
+            # Creates a deep copy of the assignment and assigns the value to the variable
             assignment_copy = copy.deepcopy(assignment)
             assignment_copy[var] = [value]
+            # Checks if the assignment is consistent
             if self.inference(assignment_copy, self.get_all_neighboring_arcs(var)):
                 result = self.backtrack(assignment_copy)
                 if result:
@@ -191,11 +196,15 @@ class CSP:
         of legal values has a length greater than one.
         """
         # TODO: YOUR CODE HERE
-        # print('assignment', assignment)
+        # Selects the variable with the smallest domain that is greater than 1
+        smallest_domain = 10
+        smallest_domain_key = None
         for key in assignment:
             if len(assignment[key]) > 1:
-                return key
-        # return [key for key in assignment if len(assignment[key]) > 1][0]
+                if len(assignment[key]) < smallest_domain:
+                    smallest_domain = len(assignment[key])
+                    smallest_domain_key = key
+        return smallest_domain_key
 
     def inference(self, assignment, queue):
         """The function 'AC-3' from the pseudocode in the textbook.
@@ -204,11 +213,14 @@ class CSP:
         is the initial queue of arcs that should be visited.
         """
         # TODO: YOUR CODE HERE
+        # Iterates through the queue and calls revise on all the pairs
         while queue:
             i, j = queue.pop(0)
             if self.revise(assignment, i, j):
+                # If revise returned true and the domain is empty, return false
                 if len(assignment[i]) == 0:
                     return False
+                # Adding all the neighbors of i to the queue, except j
                 for k in self.get_all_neighboring_arcs(i):
                     if k[0] != j:
                         queue.append(k)
@@ -225,7 +237,9 @@ class CSP:
         """
         # TODO: YOUR CODE HERE
         revised = False
-        if len(assignment[j]) == 1:        
+        # Checks if j has only one value
+        if len(assignment[j]) == 1:  
+            # Iterating through the domain of i and removes the value if it is equal to j      
             for x in assignment[i]:
                 if x == assignment[j][0]:
                     assignment[i].remove(x)
